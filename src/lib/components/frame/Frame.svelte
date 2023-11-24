@@ -1,7 +1,10 @@
 <script lang="ts">
+	import Surface from '../surface/Surface.svelte';
+
 	export let guides = false;
+	export let bg = '';
 	export let position: 'in' | 'on' | 'out' = 'in';
-	export let direction: 'in' | 'out' | 'up' | 'down' | 'left' | 'right' = 'out';
+	export let direction: 'in' | 'out' | 'up' | 'down' | 'left' | 'right' | 'revolve' = 'out';
 	export let p = '10px';
 	export let m = '10px';
 	export let size = '40px';
@@ -79,39 +82,49 @@
 			tr: '90',
 			bl: '90',
 			br: '90'
+		},
+		revolve: {
+			t: '90',
+			b: '90',
+			l: '90',
+			r: '90',
+			tl: '180',
+			tr: '270',
+			bl: '90',
+			br: '0'
 		}
 	};
 
 	const transforms = {
 		in: {
-			t: { x: '-50%', y: '-0%' },
-			b: { x: '-50%', y: '-100%' },
-			l: { x: '-0%', y: '-50%' },
-			r: { x: '-100%', y: '-50%' },
-			tl: { x: '-0%', y: '-0%' },
-			tr: { x: '-100%', y: '-0%' },
-			bl: { x: '-0%', y: '-100%' },
-			br: { x: '-100%', y: '-100%' }
+			t: { x: '5', y: '' },
+			b: { x: '5', y: '10' },
+			l: { x: '', y: '5' },
+			r: { x: '10', y: '5' },
+			tl: { x: '', y: '' },
+			tr: { x: '10', y: '' },
+			bl: { x: '', y: '10' },
+			br: { x: '10', y: '10' }
 		},
 		out: {
-			t: { x: '-50%', y: '-100%' },
-			b: { x: '-50%', y: '-0%' },
-			l: { x: '-100%', y: '-50%' },
-			r: { x: '-0%', y: '-50%' },
-			tl: { x: '-100%', y: '-100%' },
-			tr: { x: '-0%', y: '-100%' },
-			bl: { x: '-100%', y: '-0%' },
-			br: { x: '-0%', y: '-0%' }
+			t: { x: '5', y: '10' },
+			b: { x: '5', y: '' },
+			l: { x: '10', y: '5' },
+			r: { x: '0', y: '5' },
+			tl: { x: '10', y: '10' },
+			tr: { x: '', y: '10' },
+			bl: { x: '10', y: '' },
+			br: { x: '', y: '' }
 		},
 		on: {
-			t: { x: '-50%', y: '-50%' },
-			b: { x: '-50%', y: '-50%' },
-			l: { x: '-50%', y: '-50%' },
-			r: { x: '-50%', y: '-50%' },
-			tl: { x: '-50%', y: '-50%' },
-			tr: { x: '-50%', y: '-50%' },
-			bl: { x: '-50%', y: '-50%' },
-			br: { x: '-50%', y: '-50%' }
+			t: { x: '5', y: '5' },
+			b: { x: '5', y: '5' },
+			l: { x: '5', y: '5' },
+			r: { x: '5', y: '5' },
+			tl: { x: '5', y: '5' },
+			tr: { x: '5', y: '5' },
+			bl: { x: '5', y: '5' },
+			br: { x: '5', y: '5' }
 		}
 	};
 
@@ -123,89 +136,107 @@
 	$: getSize('b');
 </script>
 
-<div class={`${styles.container} ${styles.border}`} style={`padding: ${p}; margin: ${m};`}>
-	<div class={styles.content}>
-		<slot />
-	</div>
-	<div class={styles.decorations.container}>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 0%; left: 50%; transform: translate(${transforms[position]?.t.x}, ${transforms[position]?.t.y}) rotate(${rotation[direction].t}deg);`}
-		>
-			{#if $$slots.t}
-				<slot name="t" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
-			{/if}
+<div class={`${styles.container} ${styles.border}`} style={`margin: ${m};`}>
+	<div style={`padding: ${p};`}>
+		<div class={styles.content}>
+			<slot />
 		</div>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 100%; left: 50%; transform: translate(${transforms[position]?.b.x}, ${transforms[position]?.b.y}) rotate(${rotation[direction].b}deg);`}
-		>
-			{#if $$slots.b}
-				<slot name="b" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
+		<div class={styles.decorations.container}>
+			{#if $$slots.t || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 0%; left: 50%; transform: translate(-${transforms[position]?.t.x}0%, -${transforms[position]?.t.y}0%) rotate(${rotation[direction].t}deg);`}
+				>
+					{#if $$slots.t}
+						<slot name="t" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
 			{/if}
-		</div>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 50%; left: 0%; transform: translate(${transforms[position]?.l.x}, ${transforms[position]?.l.y}) rotate(${rotation[direction].l}deg);`}
-		>
-			{#if $$slots.l}
-				<slot name="l" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
+			{#if $$slots.b || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 100%; left: 50%; transform: translate(-${transforms[position]?.b.x}0%, -${transforms[position]?.b.y}0%) rotate(${rotation[direction].b}deg);`}
+				>
+					{#if $$slots.b}
+						<slot name="b" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
 			{/if}
-		</div>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 50%; left: 100%; transform: translate(${transforms[position]?.r.x}, ${transforms[position]?.r.y}) rotate(${rotation[direction].r}deg);`}
-		>
-			{#if $$slots.r}
-				<slot name="r" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
+			{#if $$slots.l || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 50%; left: 0%; transform: translate(-${transforms[position]?.l.x}0%, -${transforms[position]?.l.y}0%) rotate(${rotation[direction].l}deg);`}
+				>
+					{#if $$slots.l}
+						<slot name="l" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
 			{/if}
-		</div>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 0%; left: 0%; transform: translate(${transforms[position]?.tl.x}, ${transforms[position]?.tl.y}) rotate(${rotation[direction].tl}deg);`}
-		>
-			{#if $$slots.tl}
-				<slot name="tl" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
+			{#if $$slots.r || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 50%; left: 100%; transform: translate(-${transforms[position]?.r.x}0%, -${transforms[position]?.r.y}0%) rotate(${rotation[direction].r}deg);`}
+				>
+					{#if $$slots.r}
+						<slot name="r" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
 			{/if}
-		</div>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 0%; left: 100%; transform: translate(${transforms[position]?.tr.x}, ${transforms[position]?.tr.y}) rotate(${rotation[direction].tr}deg);`}
-		>
-			{#if $$slots.tr}
-				<slot name="tr" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
+			{#if $$slots.tl || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 0%; left: 0%; transform: translate(-${transforms[position]?.tl.x}0%, -${transforms[position]?.tl.y}0%) rotate(${rotation[direction].tl}deg);`}
+				>
+					{#if $$slots.tl}
+						<slot name="tl" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
 			{/if}
-		</div>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 100%; left: 0%; transform: translate(${transforms[position]?.bl.x}, ${transforms[position]?.bl.y}) rotate(${rotation[direction].bl}deg);`}
-		>
-			{#if $$slots.bl}
-				<slot name="bl" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
+			{#if $$slots.tr || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 0%; left: 100%; transform: translate(-${transforms[position]?.tr.x}0%, -${transforms[position]?.tr.y}0%) rotate(${rotation[direction].tr}deg);`}
+				>
+					{#if $$slots.tr}
+						<slot name="tr" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
 			{/if}
-		</div>
-		<div
-			class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
-			style={`width: ${size}; height: ${size}; top: 100%; left: 100%; transform: translate(${transforms[position]?.br.x}, ${transforms[position]?.br.y}) rotate(${rotation[direction].br}deg);`}
-		>
-			{#if $$slots.br}
-				<slot name="br" />
-			{:else if guides}
-				<span class="text-xs text-gray-500">^</span>
+			{#if $$slots.bl || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 100%; left: 0%; transform: translate(-${transforms[position]?.bl.x}0%, -${transforms[position]?.bl.y}0%) rotate(${rotation[direction].bl}deg);`}
+				>
+					{#if $$slots.bl}
+						<slot name="bl" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
+			{/if}
+			{#if $$slots.br || guides}
+				<div
+					class={`${styles.decorations.circle} ${guides ? styles.decorations.guides : ''}`}
+					style={`width: ${size}; height: ${size}; top: 100%; left: 100%; transform: translate(-${transforms[position]?.br.x}0%, -${transforms[position]?.br.y}0%) rotate(${rotation[direction].br}deg);`}
+				>
+					{#if $$slots.br}
+						<slot name="br" />
+					{:else if guides}
+						<span class="text-xs text-gray-500">^</span>
+					{/if}
+				</div>
 			{/if}
 		</div>
 	</div>
